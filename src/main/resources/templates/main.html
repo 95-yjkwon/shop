@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout=http://www.ultraq.net.nz/thymeleaf/layout
+      layout:decorate='~{layouts/layout1}'>
+
+<th:block layout:fragment="css">
+    <style>
+        .carousel-inner > .item {
+            height: 350px;
+        }
+        .margin{
+            margin-bottom:30px;
+        }
+        .banner{
+            height: 300px;
+        }
+        .card-text{
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        a:hover{
+            text-decoration:none;
+        }
+        .center{
+            text-align:center;
+        }
+        .banner{
+            position: absolute; top:0; left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div id="carouselControls" class="carousel slide margin" data-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active item">
+                <img class="d-block w-50 banner"
+                     src="https://media.istockphoto.com/id/1086889220/ko/%EB%B2%A1%ED%84%B0/%EC%84%9C%ED%95%91-%EB%A1%9C%EA%B3%A0-%EC%83%A4-%EC%B9%B4-%EC%82%AC%EC%9D%B8-%EC%86%90%EC%9D%84-%EC%84%9C%ED%95%91-%ED%81%B4%EB%9F%BD-%EC%83%81%EC%A0%90-%EC%98%B7-%EC%9D%B8%EC%87%84-%ED%9C%98%EC%9E%A5-%EB%B0%B0%EC%A7%80-%EB%9D%BC%EB%B2%A8-%EC%A0%84%EB%8B%A8%EC%A7%80-%ED%8F%AC%EC%8A%A4%ED%84%B0%EC%97%90-%EA%B7%B8%EB%A0%A4%EC%A7%84%EB%90%9C-%EB%94%94%EC%9E%90%EC%9D%B8-%EC%9A%94%EC%86%8C%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%A0-%EC%88%98-%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4-%EB%B2%A1%ED%84%B0-%EC%9D%BC%EB%9F%AC%EC%8A%A4%ED%8A%B8-%EB%A0%88%EC%9D%B4-%EC%85%98.jpg?s=612x612&w=0&k=20&c=f9ykNj5ZQ4Lh5mM0cvpNaeH1WV5niH_GTFrI-OVZMA0=" alt="First slide">
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" name="searchQuery" th:value="${itemSearchDTO.searchQuery}">
+    <div th:if="${not #strings.isEmpty(itemSearchDTO.searchQuery)}" class="center">
+        <p class="h3 font-weight-bold" th:text="${itemSearchDTO.searchQuery} + '검색 결과'"></p>
+    </div>
+    <div class="row">
+        <th:block th:each="item, status: ${items.getContent()}">
+            <div class="col-md-4 margin">
+                <div class="card">
+                    <a th:href="'/item/' + ${item.id}" class="text-dark">
+                        <img th:src="${item.itemUrl}" class="card-img-top"
+                             th:alt="${item.itemNm}" height="400">
+                        <div class="card-body">
+                            <h4 class="card-title">[[${item.itemNm}]]</h4>
+                            <p class="card-text">[[${item.itemDetail}]]</p>
+                            <h3 class="card-title text-danger">[[${item.price}]]원</h3>
+                        </div>
+
+                    </a>
+                </div>
+            </div>
+        </th:block>
+    </div>
+    <div th:with="start=${(items.number/maxPage)*maxPage + 1},
+                  end=(${(items.totalPages == 0) ? 1 :
+                  (start + (maxPage - 1) <
+                  items.totalPages ? start + (maxPage - 1) :
+                  items.totalPages)})" >
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item" th:classappend="${items.first}?'disabled'">
+                <a th:href="@{'/' + '?searchQuery=' + ${itemSearchDTO.searchQuery} + '&page=' + ${items.number - 1}}"
+                   aria-label="Previous" class="page-link">
+                    <span aria-hidden='true'>Previous</span>
+                </a>
+            </li>
+            <!--페이지 객체는 0부터 시작한다. 그래서 화면에 페이징 처리를 해준 후, page함수가 호출 될 수 있도록 a링크를 걸어준다.-->
+            <li class="page-item" th:each="page: ${#numbers.sequence(start, end)}"
+                th:classappend="${items.number eq page - 1}?'active':''">
+                <a th:href="@{'/'+'? searchQuery='+${itemSearchDTO.searchQuery}+'&page='+${page-1}}" th:inline="text" class="page-link">[[${page}]]</a>
+               <!-- <a th:onclick="'javascript:page(' + ${page - 1} + ')'"
+                   th:inline="text" class="page-link">[[${page}]]</a>-->
+            </li>
+
+            <li class="page-item" th:classappend="${items.last}?'disabled'">
+                <a th:href="@{'/' + '?searchQuery=' + ${itemSearchDTO.searchQuery} + '&page=' + ${items.number + 1}}"
+                   aria-label="Next" class="page-link">
+                    <span aria-hidden='true'>Next</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+</div>
+</html>
